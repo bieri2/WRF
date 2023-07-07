@@ -3443,7 +3443,7 @@
       ELSE IF (   model_config_rec % sf_surface_physics(1) .EQ. LSMSCHEME    ) THEN
          model_config_rec % num_soil_layers = 4
       ELSE IF (   model_config_rec % sf_surface_physics(1) .EQ. NOAHMPSCHEME ) THEN
-         model_config_rec % num_soil_layers = 4
+         model_config_rec % num_soil_layers = 12
       ELSE IF ( ( model_config_rec % sf_surface_physics(1) .EQ. RUCLSMSCHEME ) .AND. &
                 ( model_config_rec % num_soil_layers .EQ. 6 ) ) THEN
          model_config_rec % num_soil_layers = 6

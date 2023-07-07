@@ -1135,10 +1135,13 @@ cycle
 
       INTEGER                   ::      l
 
-      dzs = (/ 0.1 , 0.3 , 0.6 , 1.0 /)
-
-      IF ( num_soil_layers .NE. 4 ) THEN
-         PRINT '(A)','The Noah and NoahMP LSMs use 4 layers.  Set num_soil_layers=4 in the namelist (&physics).'
+      IF ( num_soil_layers .EQ. 12 ) THEN
+         dzs = (/ 0.1 , 0.3 , 0.6 , 1.0 , 1.0 , 1.0 , 2.0 , 2.0 , 2.0 , 2.0 , 3.0 , 5.0 /) 
+ 
+      ELSE IF ( num_soil_layers .EQ. 4 ) THEN
+         dzs = (/ 0.1 , 0.3 , 0.6 , 1.0 /)
+      ELSE
+         PRINT '(A)','The Noah and NoahMP LSMs use 4 or 12 layers.  Set num_soil_layers=4 or 12 in the namelist (&physics).'
          CALL wrf_error_fatal ( 'LSM_uses_4_layers' )
       END IF
 
@@ -1430,6 +1433,7 @@ cycle
       INTEGER :: i , j , l , lout , lin , lwant , lhave , num
       REAL :: temp
       LOGICAL :: found_levels
+      INTEGER, PARAMETER :: num_soil_layers_reduced = 4
 
       CHARACTER (LEN=132) :: message
 
@@ -1566,7 +1570,7 @@ cycle
 
          !  Interpolate between the layers we have (zhave) and those that we want (zs).
 
-         z_wantt : DO lwant = 1 , num_soil_layers
+         z_wantt : DO lwant = 1 , num_soil_layers_reduced
             z_havet : DO lhave = 1 , num_st_levels_input -1
                IF ( ( zs(lwant) .GE. zhave(lhave  ) ) .AND. &
                     ( zs(lwant) .LE. zhave(lhave+1) ) ) THEN
@@ -1596,7 +1600,7 @@ cycle
 
          !  Interpolate between the layers we have (zhave) and those that we want (zs).
 
-         z_wantt_2: DO lwant = 1 , num_soil_layers
+         z_wantt_2: DO lwant = 1 , num_soil_layers_reduced
             z_havet_2 : DO lhave = 1 , num_st_levels_input +2 -1
                IF ( ( zs(lwant) .GE. zhave(lhave  ) ) .AND. &
                     ( zs(lwant) .LE. zhave(lhave+1) ) ) THEN
@@ -1623,7 +1627,7 @@ cycle
 
       !  Interpolate between the layers we have (zhave) and those that we want (zs).
 
-      z_wantm : DO lwant = 1 , num_soil_layers
+      z_wantm : DO lwant = 1 , num_soil_layers_reduced
          z_havem : DO lhave = 1 , num_sm_levels_input -1
             IF ( ( zs(lwant) .GE. zhave(lhave  ) ) .AND. &
                  ( zs(lwant) .LE. zhave(lhave+1) ) ) THEN
@@ -1654,7 +1658,7 @@ cycle
 
          !  Interpolate between the layers we have (zhave) and those that we want (zs).
 
-         z_wantm_2 : DO lwant = 1 , num_soil_layers
+         z_wantm_2 : DO lwant = 1 , num_soil_layers_reduced
             z_havem_2 : DO lhave = 1 , num_sm_levels_input +2 -1
                IF ( ( zs(lwant) .GE. zhave(lhave  ) ) .AND. &
                     ( zs(lwant) .LE. zhave(lhave+1) ) ) THEN
@@ -1679,7 +1683,7 @@ cycle
       !  (zs).
       IF ( flag_soil_levels == 1 ) THEN
 !tgs: for RUC LSM
-      z_wantw : DO lwant = 1 , num_soil_layers
+      z_wantw : DO lwant = 1 , num_soil_layers_reduced
          z_havew : DO lhave = 1 , num_sw_levels_input -1
             IF ( ( zs(lwant) .GE. zhave(lhave  ) ) .AND. &
                  ( zs(lwant) .LE. zhave(lhave+1) ) ) THEN
@@ -1705,7 +1709,7 @@ cycle
 
             !  Interpolate between the layers we have (zhave) and those that we want (zs).
 
-            z_wantw_2 : DO lwant = 1 , num_soil_layers
+            z_wantw_2 : DO lwant = 1 , num_soil_layers_reduced
                z_havew_2 : DO lhave = 1 , num_sw_levels_input +2 -1
                   IF ( ( zs(lwant) .GE. zhave(lhave  ) ) .AND. &
                        ( zs(lwant) .LE. zhave(lhave+1) ) ) THEN

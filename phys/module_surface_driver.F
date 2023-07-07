@@ -46,7 +46,7 @@ CONTAINS
      &          ,idveg    ,iopt_crs  ,iopt_btr  ,iopt_run  ,iopt_sfc  ,iopt_frz     &
      &          ,iopt_inf ,iopt_rad  ,iopt_alb  ,iopt_snf  ,iopt_tbot ,iopt_stc     &
      &          ,iopt_gla ,iopt_rsf  ,iopt_soil ,iopt_pedo ,iopt_crop ,iopt_irr     &
-     &          ,iopt_irrm,iopt_infdv,iopt_tdrn ,soiltstep                          &
+     &          ,iopt_irrm,iopt_infdv,iopt_tdrn ,iopt_root ,soiltstep               &
      &          ,soilcomp  , soilcl1, soilcl2, soilcl3, soilcl4                     &
      &          ,isnowxy  ,tvxy      ,tgxy      ,canicexy  ,canliqxy  ,eahxy        &
      &          ,tahxy    ,cmxy      ,chxy      ,fwetxy    ,sneqvoxy  ,alboldxy     &
@@ -877,7 +877,7 @@ CONTAINS
    INTEGER, OPTIONAL, INTENT(IN) ::    idveg, iopt_crs, iopt_btr, iopt_run, iopt_sfc , iopt_frz, &
                                     iopt_inf, iopt_rad, iopt_alb, iopt_snf, iopt_tbot, iopt_stc, &
 				    iopt_gla, iopt_rsf, iopt_soil,iopt_pedo,iopt_crop, iopt_irr, &
-                                    iopt_irrm,iopt_infdv,iopt_tdrn
+                                    iopt_irrm,iopt_infdv,iopt_tdrn, iopt_root
    REAL,    OPTIONAL, INTENT(IN) :: soiltstep  ! NoahMP soil timestep (s)
    REAL,    OPTIONAL, DIMENSION(ims:ime ,8, jms:jme), INTENT(IN) :: SOILCOMP
    REAL,    OPTIONAL, DIMENSION(ims:ime , jms:jme)  , INTENT(IN) :: SOILCL1,SOILCL2,SOILCL3,SOILCL4
@@ -928,6 +928,15 @@ CONTAINS
    REAL,    OPTIONAL, DIMENSION(ims:ime , jms:jme),                    INTENT(INOUT) ::  &
     SMCWTDXY,   RECHXY, DEEPRECHXY, FDEPTHXY,  AREAXY,  RIVERCONDXY, RIVERBEDXY,  &
     EQZWT,      PEXPXY, QRFXY,      QSPRINGXY, QSLATXY, QRFSXY, QSPRINGSXY, QLATXY                        
+! NoahMP specific fields - root option 2
+   REAL,    DIMENSION( ims:ime, 1:num_soil_layers, jms:jme ) ::  EASYXY    ! root scheme ease function [-]
+   REAL,    DIMENSION( ims:ime, 1:num_soil_layers, jms:jme ) ::  ROOTACTIVITYXY ! root activity function (0 - 1)
+   REAL,    DIMENSION( ims:ime, 1:num_soil_layers, jms:jme ) ::  INACTIVEXY     ! number of timesteps with inactive roots [-]
+   INTEGER, DIMENSION( ims:ime,                    jms:jme ) ::  KROOTXY   ! layer depth of root zone   [-]
+   INTEGER, DIMENSION( ims:ime,                    jms:jme ) ::  KWTDXY    ! layer depth of water table [-]
+   REAL,    DIMENSION( ims:ime, 1:num_soil_layers, jms:jme ) ::  PSIXY     ! soil matric potential [m]
+   INTEGER, DIMENSION( ims:ime,                    jms:jme ) ::  GWRDXY    ! root water uptake depth [m]
+   REAL,    DIMENSION( ims:ime, 1:num_soil_layers, jms:jme ) ::  BTRANIXY  ! beta factor for soil moisture stress (0 - 1)
 
    REAL,    OPTIONAL, DIMENSION(ims:ime,60,jms:jme) :: gecros_state                  ! Optional gecros crop
 
@@ -3120,7 +3129,7 @@ CONTAINS
                   IDVEG, IOPT_CRS, IOPT_BTR, IOPT_RUN,  IOPT_SFC,   IOPT_FRZ, &
 	       IOPT_INF, IOPT_RAD, IOPT_ALB, IOPT_SNF, IOPT_TBOT,   IOPT_STC, &
 	       IOPT_GLA, IOPT_RSF, IOPT_SOIL,IOPT_PEDO,IOPT_CROP,   IOPT_IRR, &
-              IOPT_IRRM, IOPT_INFDV, IOPT_TDRN, soiltstep,                    &
+              IOPT_IRRM, IOPT_INFDV, IOPT_TDRN, IOPT_ROOT, soiltstep,         &
                 IZ0TLND, SF_URBAN_PHYSICS,                                    &
 	       SOILCOMP,  SOILCL1,  SOILCL2,  SOILCL3,   SOILCL4,             &
 		  T_PHY,  QV_CURR,    U_PHY,    V_PHY,    SWDOWN,    SWDDIR,  &
@@ -3164,6 +3173,8 @@ CONTAINS
                 ids,ide, jds,jde, kds,kde,                      &
                 ims,ime, jms,jme, kms,kme,                      &
                 i_start(ij),i_end(ij), j_start(ij),j_end(ij), kts,kte,        &
+               EASYXY, ROOTACTIVITYXY, INACTIVEXY, KROOTXY, KWTDXY, BTRANIXY, & 
+               PSIXY, GWRDXY, FDEPTHXY, &
 ! variables below are optional
                 MP_RAINC =  RAINCV, MP_RAINNC =    RAINNCV, MP_SHCV = RAINSHV,&
 		MP_SNOW  = SNOWNCV, MP_GRAUP  = GRAUPELNCV, MP_HAIL = HAILNCV )
